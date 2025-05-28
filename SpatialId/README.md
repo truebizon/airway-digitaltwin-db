@@ -159,3 +159,39 @@
      ```
      - Windows
           - <リポジトリ>/vs2022/SpatialId.sln を Visual Studio 2022 で開いてください
+
+## macOS 環境構築手順
+1. Homebrew をインストールします（未導入の場合）  
+   [Homebrew 公式サイト](https://brew.sh/) を参照してください。
+2. 依存ライブラリを以下のコマンドでインストールします。
+   ```sh
+   brew install proj bullet sqlite3 mysql
+   ```
+3. 本リポジトリの `build-macos.sh` を実行すると `clang++` を利用して
+   静的ライブラリ `libSpatialId.a` を作成します。
+   ```sh
+   ./build-macos.sh
+   ```
+4. 他のアプリケーションから利用する際は上記ライブラリに加え、
+   `-lproj -lBulletDynamics -lBulletCollision -lLinearMath -lsqlite3 -lmysqlclient`
+   をリンクしてください。
+
+### サンプル CMakeLists.txt
+CMake を利用する場合は以下のようなファイルをプロジェクトルートに置きます。
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(SpatialId LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+
+file(GLOB SRC src/**/*.cpp)
+add_library(SpatialId STATIC ${SRC})
+target_include_directories(SpatialId PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(SpatialId PUBLIC proj BulletDynamics BulletCollision
+                      LinearMath sqlite3 mysqlclient)
+```
+
+### 実行時の注意
+`proj` や `bullet` など Homebrew でインストールしたライブラリが
+`/usr/local/lib` に配置されます。必要に応じて `DYLD_LIBRARY_PATH` を設定してください。
+
