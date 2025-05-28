@@ -157,3 +157,36 @@ visualStudio　で　取り込みたいアプリのプロジェクトを開く
 
 ５）ビルド　＞　プログラムIDのビルド　を実行
 
+
+## macOS 環境構築手順
+1. Homebrew をインストールします（未導入の場合）  
+   [Homebrew 公式サイト](https://brew.sh/) を参照してください。
+2. 必要なライブラリを下記のコマンドで導入します。
+   ```sh
+   brew install proj bullet sqlite3 mysql
+   ```
+3. `clang++` で各ツールをビルドする簡易スクリプト `build-macos.sh` を用意しています。
+   実行すると `build` ディレクトリに実行ファイルが生成されます。
+   ```sh
+   ./build-macos.sh
+   ```
+
+### CMake を利用する場合
+本プロジェクトには Windows 向けの Visual Studio プロジェクトのみが存在しますが、
+以下のような `CMakeLists.txt` を作成することで macOS でもビルドできます。
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(spaceInfraCpp LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+file(GLOB SRC */*.cpp)
+add_executable(spaceInfraTools ${SRC})
+target_include_directories(spaceInfraTools PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(spaceInfraTools PRIVATE proj BulletDynamics BulletCollision
+                      LinearMath sqlite3 mysqlclient)
+```
+
+### 実行時の注意
+Homebrew で入れたライブラリが `/usr/local/lib` に配置されます。
+実行時にライブラリが見つからない場合は `DYLD_LIBRARY_PATH` を
+設定してください。
+
